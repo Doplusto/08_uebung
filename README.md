@@ -38,6 +38,87 @@ Dieser Auftrag zerstört sich in 5 Sekunden selbst!"
 
 [Check this out!](https://vimeo.com/38437470)
 
+**Lösung befindet sich unter ./src/java/Chat**:
+
+```java
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Iterator;
+
+/**
+ * check ports
+ */
+public class PortScanner {
+
+    /**
+     * Represents the IPRange
+     */
+    private static class IPRange implements Iterable<Integer> {
+
+        int startIPAddress, endIPAddress;
+
+        IPRange(int start, int end) {
+            this.startIPAddress = start;
+            this.endIPAddress   = end;
+        }
+
+        /**
+         * This Iterator makes live easy.
+         * @return Iterator
+         */
+        public Iterator<Integer> iterator() {
+            return new Iterator<Integer>() {
+
+                int index = startIPAddress;
+
+                @Override
+                public boolean hasNext() {
+                    return index <= endIPAddress;
+                }
+
+                @Override
+                public Integer next() {
+                    return index++;
+                }
+            };
+        }
+    }
+
+    /**
+     * This method tries to connect and checks if port ist open.
+     * @param ip IP address of host
+     * @param port Port to connect to
+     * @param timeout Timeout
+     * @return Returns wether it was possible to connect or not.
+     */
+   static boolean portIsOpen(String ip, int port, int timeout) {
+        try {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(ip, port), timeout);
+            socket.close();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Starts port scan.
+     * @param args
+     */
+    public static void main(String[] args) {
+        String IP = "localhost";
+        IPRange[] portRanges = new IPRange[]{new IPRange(5005, 5015), new IPRange(5501, 5509), new IPRange(6003, 6010), new IPRange(6997,7013)};
+        for (int i = 0; i < portRanges.length; i++) {
+            for (int port: portRanges[i]) {
+                System.out.println( port + " is " + ((portIsOpen(IP, port, 2000)) ? "open" : "closed"));
+            }
+        }
+    }
+}
+
+```
+
 ## Aufgabe 2: Telnet Session
 
 Nachdem Sie nun herausgefunden haben, welcher Port offen ist, können
@@ -172,4 +253,115 @@ public class ChatClient {
 
 ```shell
 >java ChatClient
+```
+
+**Lösung befindet sich unter ./src/java/Chat**:
+
+```java
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class ChatServer {
+
+    private int port;
+
+    ChatServer(int port) {
+        this.port = port;
+    }
+
+    public void run() {
+        try {
+            ServerSocket s = new ServerSocket(port);
+            s.setReuseAddress(true);
+
+            System.out.println("Wait for client!");
+
+            while(true) {
+                Socket socket  = s.accept();
+                System.out.println("Client connected");
+
+                OutputStream output = socket.getOutputStream();
+                PrintWriter writer = new PrintWriter(output, true);
+
+                InputStream input = socket.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+                Console console = System.console();
+                String text, msg;
+
+                do {
+                    msg = reader.readLine();
+                    System.out.println("Client >> " + msg);
+                    text = console.readLine("ME >> ");
+                    writer.println(text);
+                } while ( !msg.equals("bye"));
+
+                socket.close();
+            }
+
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        ChatServer serv = new ChatServer(7001);
+        serv.run();
+    }
+}
+```
+
+```java
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+public class ChatClient {
+
+    private String hostname;
+    private int port;
+
+    public ChatClient(String hostname, int port) {
+        this.hostname = hostname;
+        this.port = port;
+    }
+
+    public void run() {
+
+        try {
+            Socket socket = new Socket(hostname, port);
+
+            System.out.println("Client connected");
+
+            OutputStream output = socket.getOutputStream();
+            PrintWriter writer = new PrintWriter(output, true);
+
+            InputStream input = socket.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+            Console console = System.console();
+            String text, msg;
+
+            do {
+                text = console.readLine("ME >> ");
+                writer.println(text);
+                msg = reader.readLine();
+                System.out.println("Server >> " + msg);
+            } while ( !text.equals("bye"));
+
+            socket.close();
+
+        } catch (UnknownHostException ex) {
+            System.out.println("Server not found: " + ex.getMessage());
+        } catch (IOException ex) {
+            System.out.println("I/O Error: " + ex.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        ChatClient client = new ChatClient("localhost", 7001);
+        client.run();
+    }
+}
 ```
