@@ -15,7 +15,7 @@ Themen IP Addressing, Ports und Sockets.
 "Ethan Hunt, wir haben auf geheimen Wegen erfahren, dass bei einer uns
 verdächtigen Organisation auf einem Computersystem ein Service läuft,
 der ungesichert ist. Wenn wir Zugriff auf diesen Service erlangen würden, könnten wir in das System
-eindringen und wichtig daten abgreifen. Allerdings kennen wir nur die IP Adresse, wissen aber
+eindringen und wichtige Daten abgreifen. Allerdings kennen wir nur die IP Adresse, wissen aber
 nicht auf welchem Port die Applikation horcht.
 
 Ihre Aufgabe ist nun:
@@ -59,14 +59,14 @@ Was müssen hierzu machen?
 
 1. Finden Sie einen Port, auf dem ihr Server horchen wird.
 1. Entwickeln Sie zunächst den `ChatServer`. Dieser soll einen `SocketServer`verwenden und auf einen Client warten, der sich gegen den entsprechenden Port verbinden möchte.
-1. Schreiben sie un einen `ChatClient`, der sich gegen den Server verbindet. -- Nun haben Sie immerhin schon einen verbindung!
+1. Schreiben sie nun einen `ChatClient`, der sich gegen den Server verbindet. -- Nun haben Sie immerhin schon einen verbindung!
 1. Einigen Sie sich nun auf das Protokoll.
 
   - Idealerweise fängt der Client an und schickt eine Nachricht, danach erwartet er einen Nachricht vom Server.
   - Beim Server ist es genau umgekehrt. Sobald ein Client sich verbunden hat, erwartet der Server eine Nachricht vom Client und danach schickt der Server einen Antwort
   - Verwenden Sie zum Anfang dieses einfache Ping-Pong Protokoll.
   - Die Server Logik lässt sich wieder sehr gut mit `telnet` testen.
-1. Wenn Sie noch Lust habe, können Sie sich mal die `run`-Methoden ansehen und evtl. eine gemeinsame Oberklasse daraus extrahieren!
+1. Wenn Sie noch Lust haben, können Sie sich mal die `run`-Methoden ansehen und evtl. eine gemeinsame Oberklasse daraus extrahieren!
 
 Ein paar Hinweise:
 
